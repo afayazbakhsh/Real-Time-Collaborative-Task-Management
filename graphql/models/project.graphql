@@ -1,0 +1,10 @@
+type Project {
+    id: ID!
+    title: String!
+    user: User! @belongsTo
+}
+
+extend type Query {
+    projects: [Project!]! @all
+    project(id: ID @eq(key: "id")): Project @find
+}
