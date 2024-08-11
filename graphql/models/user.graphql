@@ -4,6 +4,7 @@ type User {
     email: String!
     phone: String
     created_at: DateTime!
+    projects: [Project!] @hasMany
 }
 
 extend type Query {

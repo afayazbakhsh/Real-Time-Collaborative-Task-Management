@@ -7,4 +7,4 @@ scalar DateTime @scalar(class: "Nuwave\\Lighthouse\\Schema\\Types\\Scalars\\Date
 
 type Query
 
-#import models/user.graphql
+#import models/*.graphql
