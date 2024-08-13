@@ -11,3 +11,7 @@ extend type Query {
     users: [User!]! @all
     user(id: ID @eq(key: "id")): User @find
 }
+
+type Mutation {
+    CreateProject(user_id: Int!, title: String!): Project @create
+}

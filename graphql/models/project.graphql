@@ -7,4 +7,5 @@ type Project {
 extend type Query {
     projects: [Project!]! @all
     project(id: ID @eq(key: "id")): Project @find
+    projects: [Project!]! @paginate
 }
