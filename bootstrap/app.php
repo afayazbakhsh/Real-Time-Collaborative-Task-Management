@@ -10,7 +10,7 @@ return Application::configure(basePath: dirname(__DIR__))
         apiPrefix: 'api'
     )
     ->withMiddleware(function (Middleware $middleware) {
-        $middleware->getMiddlewareGroups('api');
+        $middleware->getMiddlewareGroups();
     })
     ->withExceptions(function (Exceptions $exceptions) {
 
