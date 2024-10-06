@@ -6,5 +6,5 @@ use Illuminate\Support\Facades\Route;
 
 Route::prefix('projects')->middleware('auth:api')->group(function () {
     Route::get('/', IndexProjectController::class);
-    Route::post('/create', CreateProjectController::class);
+    Route::post('/', CreateProjectController::class);
 });
