@@ -17,5 +17,7 @@ class LoginUserAction
 
             return $user;
         }
+
+        return null;
     }
 }
