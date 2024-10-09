@@ -1,9 +1,12 @@
 <?php
 
-namespace Feature\Project;
+namespace Tests\Feature\Auth;
 
+use App\Actions\LoginUserAction;
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
@@ -11,29 +14,66 @@ class UserLoginTest extends TestCase
 {
     use DatabaseMigrations;
 
+    protected string $password = 'password123';
+    protected User $user;
 
-    public function test_user_can_login()
+    protected function setUp(): void
     {
-        $password = fake()->password;
-        $user = User::factory()->create([
-            'password' => bcrypt($password),
+        parent::setUp();
+        // Create a default user for login tests
+        $this->user = User::factory()->create([
+            'password' => bcrypt($this->password),
         ]);
+    }
 
-        $data = [
-            'email' => $user->email,
-            'password' => $password,
-            'remember' => fake()->boolean,
-        ];
+    private function getLoginData(array $overrides = []): array
+    {
+        return array_merge([
+            'email' => $this->user->email,
+            'password' => $this->password,
+        ], $overrides);
+    }
 
-        $response = $this->post('/login', $data);
+    public function test_user_can_login(): void
+    {
+        $response = $this->postJson('/login', $this->getLoginData());
 
-        $response->assertStatus(200);
-
-        // Assert that the response contains a token and user data
         $response->assertJson(fn (AssertableJson $json) =>
         $json->has('data.token')
-            ->where('data.user.email', $user->email));
+            ->where('data.email', $this->user->email)
+        );
 
-        $this->assertAuthenticatedAs($user, 'api');
+        $response->assertValid();
+        $this->assertAuthenticatedAs($this->user, 'api');
     }
+
+    public function test_user_login_validation_email_fail(): void
+    {
+        $response = $this->postJson('/login', $this->getLoginData([
+            'email' => 'invalid-email',
+            'password' => 'fake password',
+        ]));
+
+        $response->assertStatus(422);
+        $response->assertInvalid([
+            'email' => __('validation.email', ['attribute' => __('validation.attributes.email')]),
+        ]);
+    }
+
+    public function test_user_login_throw_exception(): void
+    {
+        $this->expectException(AuthenticationException::class);
+
+        $data = $this->getLoginData([
+            'password' => 'fake password',
+        ]);
+
+        Auth::shouldReceive('attempt')
+            ->with($data)
+            ->andReturn(false);
+
+        $action = new LoginUserAction;
+        $action->execute($data);
+    }
+
 }

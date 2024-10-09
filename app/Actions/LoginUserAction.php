@@ -3,11 +3,15 @@
 namespace App\Actions;
 
 use App\Models\User;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Support\Facades\Auth;
 
 class LoginUserAction
 {
-    public function execute(array $data): User|NULL
+    /**
+     * @throws AuthenticationException
+     */
+    public function execute(array $data): User
     {
         if ($token = Auth::attempt($data)) {
 
@@ -18,6 +22,6 @@ class LoginUserAction
             return $user;
         }
 
-        return null;
+        throw new AuthenticationException('Invalid credentials');
     }
 }
