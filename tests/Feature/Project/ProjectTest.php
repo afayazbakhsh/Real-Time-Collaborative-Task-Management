@@ -1,57 +1,74 @@
 <?php
 
-namespace Feature\Project;
+namespace Tests\Feature\Project;
 
 use App\Models\Project;
 use App\Models\User;
-use Illuminate\Foundation\Testing\DatabaseMigrations;
+use Database\Seeders\RoleSeeder;
+use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
 
 class ProjectTest extends TestCase
 {
-    use DatabaseMigrations;
+    use RefreshDatabase;
+
+    private $user;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->seed(RoleSeeder::class);
+
+        $this->user = User::factory()->createOne();
+    }
 
     public function test_project_index(): void
     {
         Exceptions::fake();
 
-        $user = User::factory()->create();
+        Project::factory()->count(10)->create();
 
-        $projects = Project::factory()->count(10)->create();
+        $response = $this->actingAs($this->user)->getJson(route('projects.create'));
 
-        $response = $this->actingAs($user)->getJson('api/projects');
-
-        $response->assertSuccessful();
+        $response->assertOk();
 
         $response->assertJson(
             fn (AssertableJson $json) => $json->has('data', length: 10)->etc()
         );
 
-        // Assert exception...
         Exceptions::assertNotReported(Exceptions::class);
         Exceptions::assertNothingReported();
 
     }
 
-    public function test_project_create(): void
+    public function test_admin_can_create_project(): void
     {
-        $user = User::factory()->create();
+        $this->user->assignRole('admin');
 
-        // Use 'make' to generate unsaved project data
-        $project = Project::factory()->make(['title', 'user_id' => $user->id])->toArray();
+        $projectData = Project::factory()->make([
+            'title' => 'Test Project',
+            'user_id' => $this->user->id,
+        ])->toArray();
 
-        // Send POST request
-        $response = $this->actingAs($user)->postJson('api/projects', $project);
+        $response = $this->actingAs($this->user)
+            ->postJson(route('projects.create'), $projectData);
 
-        // Assert status 201 (Created)
         $response->assertCreated();
 
-        // Assert the JSON response structure
-        $response->assertJson(fn (AssertableJson $json) => $json->hasAll(['title', 'user_id'])->missing('fake_column')->etc()
-            ->where('title', $project['title']) // Check title matches
-            ->where('user_id', $user->id) // Check user_id matches
+
+        $response->assertJson(fn (AssertableJson $json) => $json->hasAll(['title', 'user_id'])
+            ->where('title', $projectData['title'])
+            ->where('user_id', $this->user->id)
+            ->missing('fake_column')
+            ->etc()
         );
+
+        $this->assertDatabaseHas('projects', [
+            'title' => $projectData['title'],
+            'user_id' => $this->user->id,
+        ]);
     }
 }
