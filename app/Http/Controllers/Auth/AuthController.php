@@ -8,10 +8,10 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Auth\LoginUserRequest;
 use App\Http\Requests\Auth\RegisterUserRequest;
 use App\Http\Resources\UserLoginResource;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
 {
@@ -27,14 +27,14 @@ class AuthController extends Controller
         return UserLoginResource::make($user);
     }
 
+    /**
+     * @throws AuthenticationException
+     */
     public function login(LoginUserRequest $request): JsonResponse|JsonResource
     {
-        try {
-            $user = $this->loginUserAction->execute($request->validated());
-            return UserLoginResource::make($user);
-        } catch (ValidationException $e) {
-            return response()->json(['error' => 'Validation failed'], 422);
-        }
+        $user = $this->loginUserAction->execute($request->validated());
+
+        return UserLoginResource::make($user);
     }
 
     public function logout()

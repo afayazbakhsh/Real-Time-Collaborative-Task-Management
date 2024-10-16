@@ -17,6 +17,11 @@ class User extends Authenticatable implements JWTSubject
     use HasFactory, Notifiable, HasRoles;
 
     /**
+     * @var bool|mixed
+     */
+    public mixed $token;
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>

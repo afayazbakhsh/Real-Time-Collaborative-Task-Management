@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\ProjectStatusEnum;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -13,6 +14,12 @@ class Project extends Model
 
     protected $guarded = [
       'id'
+    ];
+
+    protected $casts = [
+        'created_at' => 'datetime',
+        'user_id' => 'integer',
+        'status' => ProjectStatusEnum::class,
     ];
 
     public function user(): BelongsTo

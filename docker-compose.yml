@@ -38,36 +38,33 @@ services:
         restart: unless-stopped
         tty: true
         ports:
-            - "${DB_PORT}:3306"
+            - "${DB_PORT}:3306"  # Ensure DB_PORT from .env is mapped correctly
         environment:
             MYSQL_DATABASE: "${DB_DATABASE}"
             MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
             MYSQL_USER: "${DB_USERNAME}"
             MYSQL_PASSWORD: "${DB_PASSWORD}"
-            SERVICE_TAGS: dev
-            SERVICE_NAME: mysql
-        volumes:
-            - dbdata:/var/lib/mysql/
-            - ./docker/mysql/my.cnf:/etc/mysql/my.cnf
-        networks:
-            - app-network
+
+
 
     phpmyadmin:
         image: phpmyadmin
         container_name: phpmyadmin
         restart: unless-stopped
         tty: true
-        links:
-            - db:mysql
         ports:
-            - "9191:80"
+            - '${FORWARD_PHPMYADMIN_PORT:-9191}:80'
         environment:
             MYSQL_USER: "${DB_USERNAME}"
             MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
-            PMA_HOST: mysql
+            PMA_HOST: db       # Ensure this matches your db service name
+            PMA_PORT: 3308      # Match your DB_PORT
             SERVICE_NAME: phpmyadmin
         networks:
             - app-network
+        depends_on:
+            - db
+
 
 networks:
     app-network:
