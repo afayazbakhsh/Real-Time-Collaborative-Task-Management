@@ -2,9 +2,11 @@
 
 namespace Tests\Feature\Project;
 
+use App\Enums\RoleTypesEnum;
 use App\Models\Project;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
+use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Testing\Fluent\AssertableJson;
@@ -12,44 +14,44 @@ use Tests\TestCase;
 
 class ProjectTest extends TestCase
 {
-    use RefreshDatabase;
+    use DatabaseMigrations;
 
-    private $user;
+    private User $user;
 
     protected function setUp(): void
     {
         parent::setUp();
 
+        $this->user = User::factory()->createOne();
+
         $this->seed(RoleSeeder::class);
 
-        $this->user = User::factory()->createOne();
     }
 
     public function test_project_index(): void
     {
         Exceptions::fake();
 
-        Project::factory()->count(10)->create();
+        $project = Project::factory()->createMany(20);
 
         $response = $this->actingAs($this->user)->getJson(route('projects.create'));
 
         $response->assertOk();
 
         $response->assertJson(
-            fn (AssertableJson $json) => $json->has('data', length: 10)->etc()
+            fn (AssertableJson $json) => $json->has('data', length: 20)->etc()
         );
 
         Exceptions::assertNotReported(Exceptions::class);
         Exceptions::assertNothingReported();
-
     }
 
     public function test_admin_can_create_project(): void
     {
-        $this->user->assignRole('admin');
+        $this->user->assignRole(RoleTypesEnum::Admin);
 
         $projectData = Project::factory()->make([
-            'title' => 'Test Project',
+            'title' => fake()->title,
             'user_id' => $this->user->id,
         ])->toArray();
 
