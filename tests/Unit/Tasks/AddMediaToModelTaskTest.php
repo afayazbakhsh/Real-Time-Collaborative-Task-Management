@@ -6,7 +6,7 @@ use App\Tasks\AddMediaToModelTask;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
-use Tests\TestCase;  // Change the base class to Laravel's TestCase
+use Tests\TestCase;
 
 class AddMediaToModelTaskTest extends TestCase
 {
@@ -15,6 +15,7 @@ class AddMediaToModelTaskTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         Storage::fake('public');
     }
 
@@ -22,16 +23,13 @@ class AddMediaToModelTaskTest extends TestCase
     {
         $project = Project::factory()->createOne();
 
-        $file1 = UploadedFile::fake()->image('test');
+        $file = UploadedFile::fake()->image('test.jpg');
 
-        resolve(AddMediaToModelTask::class)->run($project, $file1);
+        $media = resolve(AddMediaToModelTask::class)->run($project, $file);
 
-        $file = $project->media()->first();
+        $this->assertEquals('test.jpg', $media->file_name);
 
-        $this->assertCount(1, $project->getMedia());
+        Storage::disk('public')->assertExists($media->getPathRelativeToRoot());
 
-        $this->assertEquals('test', $file->file_name);
-
-        Storage::disk('public')->assertExists($file->getPath());
     }
 }
