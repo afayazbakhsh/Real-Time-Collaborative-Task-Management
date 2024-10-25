@@ -9,6 +9,7 @@ use Illuminate\Foundation\Testing\DatabaseMigrations;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Testing\Fluent\AssertableJson;
 use Tests\TestCase;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class UserLoginTest extends TestCase
 {
@@ -76,4 +77,24 @@ class UserLoginTest extends TestCase
         $action->execute($data);
     }
 
+    public function test_logout_attempt_by_non_logged_in_user_returns_error()
+    {
+        Auth::shouldReceive('logout')->once()->andThrow((new JWTException(__('auth.logout.failed_token'))));
+
+        $response = $this->get(route('auth.logout'));
+
+        $response->assertStatus(401)
+            ->assertExactJson(['message' => __('auth.logout.failed_token')]);
+    }
+
+
+    public function test_successful_logout_of_logged_in_user()
+    {
+        Auth::shouldReceive('logout')->once()->andReturn(true);
+
+        $response = $this->get(route('auth.logout'));
+
+        $response->assertStatus(200)
+            ->assertExactJson(['message' => __('auth.logout.successfully')]);
+    }
 }

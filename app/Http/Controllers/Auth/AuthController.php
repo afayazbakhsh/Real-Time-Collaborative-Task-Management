@@ -12,6 +12,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
+use Tymon\JWTAuth\Exceptions\JWTException;
 
 class AuthController extends Controller
 {
@@ -37,10 +38,15 @@ class AuthController extends Controller
         return UserLoginResource::make($user);
     }
 
-    public function logout()
+    public function logout(): JsonResponse
     {
-        Auth::logout();
-        return response()->json(['message' => 'Successfully logged out']);
-
+        try {
+            Auth::logout();
+            return response()->json(['message' => __('auth.logout.successfully')]);
+        } catch (JWTException $e) {
+            return response()->json(['message' => __('auth.logout.failed_token')], 401);
+        } catch (\Exception $e) {
+            return response()->json(['message' => __('auth.logout.unexpected_error')], 500);
+        }
     }
 }
