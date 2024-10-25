@@ -1,4 +1,4 @@
-version: "3"
+version: "3.9"
 
 services:
     app:
@@ -27,51 +27,44 @@ services:
             - "${APP_PORT}:80"
         volumes:
             - ./:/var/www:delegated
-            - ./docker/nginx/conf.d/dev/:/etc/nginx/conf.d/  # Mounts the directory for Nginx conf.d
-            - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf  # Mounts the Nginx main config file
+            - ./docker/nginx/conf.d/dev/:/etc/nginx/conf.d/
+            - ./docker/nginx/nginx.conf:/etc/nginx/nginx.conf
         networks:
             - app-network
 
     db:
-        image: mariadb:10.5.8
+        image: postgres:13
         container_name: db
         restart: unless-stopped
         tty: true
         ports:
-            - "${DB_PORT}:3306"  # Ensure DB_PORT from .env is mapped correctly
+            - "${DB_PORT}:5432"
         environment:
-            MYSQL_DATABASE: "${DB_DATABASE}"
-            MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
-            MYSQL_USER: "${DB_USERNAME}"
-            MYSQL_PASSWORD: "${DB_PASSWORD}"
+            POSTGRES_DB: "${DB_DATABASE}"
+            POSTGRES_USER: "${DB_USERNAME}"
+            POSTGRES_PASSWORD: "${DB_PASSWORD}"
+            POSTGRES_INITDB_ARGS: "--max-connections=200"
+        volumes:
+            - ./docker/pgsql/data:/var/lib/postgresql/data
+        networks:
+            - app-network
 
-
-
-    phpmyadmin:
-        image: phpmyadmin
-        container_name: phpmyadmin
+    adminer:
+        image: adminer
+        container_name: adminer
         restart: unless-stopped
         tty: true
         ports:
-            - '${FORWARD_PHPMYADMIN_PORT:-9191}:80'
-        environment:
-            MYSQL_USER: "${DB_USERNAME}"
-            MYSQL_ROOT_PASSWORD: "${DB_PASSWORD}"
-            PMA_HOST: db       # Ensure this matches your db service name
-            PMA_PORT: 3308      # Match your DB_PORT
-            SERVICE_NAME: phpmyadmin
-        networks:
-            - app-network
+            - "${FORWARD_PHPMYADMIN_PORT:-9191}:8080"
         depends_on:
             - db
-
+        networks:
+            - app-network
 
 networks:
     app-network:
         driver: bridge
 
 volumes:
-    dbdata:
-        driver: local
-    nginx-config:
+    pgsql_data:
         driver: local
