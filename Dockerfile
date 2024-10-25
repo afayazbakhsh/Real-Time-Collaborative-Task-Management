@@ -14,12 +14,14 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libzip-dev \
     libxml2-dev \
+    libpq-dev \
     git \
     unzip \
     && docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install gd \
     && docker-php-ext-install zip \
     && docker-php-ext-install mysqli pdo pdo_mysql \
+    && docker-php-ext-install pdo_pgsql \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy custom configuration files (e.g., php.ini)
