@@ -24,6 +24,7 @@ class ProjectCollection extends JsonResource
             'user_id' => $this->user_id,
             'created_at' => $this->created_at,
             'status' => $this->status->isActive(),
+            'tasks' => $this->tasks,
             'media' => $this->media->toArray(),
         ];
     }

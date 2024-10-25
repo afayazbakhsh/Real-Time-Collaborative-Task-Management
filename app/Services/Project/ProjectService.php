@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Project;
 
 use App\Models\Project;
 use App\Tasks\AddMediaToModelTask;
@@ -15,7 +15,7 @@ readonly class ProjectService
 
     public function index(): Collection
     {
-        return Project::with('media')->get();
+        return Project::with(['media', 'tasks'])->get();
     }
 
     public function create(array $data): Project

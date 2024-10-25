@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Projects;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Project\ProjectCollection;
-use App\Services\ProjectService;
+use App\Services\Project\ProjectService;
 
 class IndexProjectController extends Controller
 {
