@@ -6,11 +6,9 @@ use App\Models\Task;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
-use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcastNow;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\Log;
 
 class TaskChanged implements ShouldBroadcastNow
 {
@@ -28,7 +26,7 @@ class TaskChanged implements ShouldBroadcastNow
         ];
     }
 
-//    public function broadcastWhen(): bool
-//    {
-//    }
+    //    public function broadcastWhen(): bool
+    //    {
+    //    }
 }

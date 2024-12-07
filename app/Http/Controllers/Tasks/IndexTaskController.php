@@ -3,13 +3,14 @@
 namespace App\Http\Controllers\Tasks;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Collection;
+use App\Http\Resources\Task\TaskCollection;
+use Illuminate\Http\Resources\Json\JsonResource;
 use Illuminate\Support\Facades\Auth;
 
 class IndexTaskController extends Controller
 {
-    public function __invoke(): Collection
+    public function __invoke(): JsonResource
     {
-        return Auth::user()->tasks()->get();
+        return TaskCollection::collection(Auth::user()->tasks);
     }
 }

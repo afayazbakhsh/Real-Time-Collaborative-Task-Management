@@ -7,14 +7,15 @@ use App\Models\Project;
 use App\Models\User;
 use Database\Seeders\RoleSeeder;
 use Illuminate\Foundation\Testing\DatabaseMigrations;
-use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Exceptions;
 use Illuminate\Testing\Fluent\AssertableJson;
+use Kirschbaum\OpenApiValidator\ValidatesOpenApiSpec;
 use Tests\TestCase;
 
 class ProjectTest extends TestCase
 {
     use DatabaseMigrations;
+    use ValidatesOpenApiSpec;
 
     private User $user;
 
@@ -59,7 +60,6 @@ class ProjectTest extends TestCase
             ->postJson(route('projects.create'), $projectData);
 
         $response->assertCreated();
-
 
         $response->assertJson(fn (AssertableJson $json) => $json->hasAll(['title', 'user_id'])
             ->where('title', $projectData['title'])

@@ -16,12 +16,12 @@ class RouteServiceProvider extends ServiceProvider
     {
         $this->loadRoutesFrom(base_path('routes/auth.php'));
 
-        Route::middleware(['api'])
+        Route::middleware(['auth:api'])
             ->prefix('projects')
             ->name('project.')
             ->group(base_path('routes/project.php'));
 
-        Route::middleware(['api'])
+        Route::middleware(['auth:api'])
             ->prefix('tasks')
             ->name('task.')
             ->group(base_path('routes/task.php'));
