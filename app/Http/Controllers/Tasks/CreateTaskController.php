@@ -15,6 +15,6 @@ class CreateTaskController extends Controller
 
     public function __invoke(Project $project, CreateTaskRequest $request)
     {
-        return $this->service->create($project, $request->validated());
+        return $this->service->create($request->validated());
     }
 }

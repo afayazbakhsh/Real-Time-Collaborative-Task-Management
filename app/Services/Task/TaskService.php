@@ -7,8 +7,13 @@ use App\Models\Task;
 
 readonly class TaskService
 {
-    public function create(Project $project, array $data): Task
+    public function create(array $data): Task
     {
-        return $project->tasks()->create($data);
+        return Task::create($data);
+    }
+
+    public function update(Task $task, array $data): bool
+    {
+        return $task->update($data);
     }
 }

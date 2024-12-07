@@ -66,12 +66,30 @@
                     }
                 }
             }
+        },
+        "/api/user": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get user info",
+                "operationId": "dcf141a20fdbe603f96cd674b72f26e4",
+                "responses": {
+                    "200": {
+                        "description": "User info retrieved successfully"
+                    }
+                }
+            }
         }
     },
     "tags": [
         {
             "name": "Projects",
             "description": "Projects"
+        },
+        {
+            "name": "User",
+            "description": "User"
         }
     ]
 }
